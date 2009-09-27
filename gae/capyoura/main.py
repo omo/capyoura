@@ -51,8 +51,17 @@ class Cap(db.Model):
     self.visits = [i for i in self.visits if yesterday < i] + [now]
     self.put()
 
+  @property
+  def visit_count(self):
+    return len(self.visits)
+
   def to_plain(self):
-    return { "site": self.site, "visitCount": len(self.visits), "limit": self.limit }
+    return { "site": self.site, "visitCount": self.visit_count, "limit": self.limit }
+
+  @property
+  def exceeded(self):
+    return self.limit <= self.visit_count
+
 
 LARGE_ENOUGH_TO_FETCH = 100
 VISIT_LIFETIME = datetime.timedelta(days=1)

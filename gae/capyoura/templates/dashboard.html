@@ -11,16 +11,18 @@
 {% for c in caps %}
     <tr>
     <form method="POST">
-      <td>
+  {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
 	{{c.site|escape}}
         <input type="submit" class="button" name="delete" value="Delete" />
         <input type="hidden" name="key" value="{{c.key|escape}}" />
       </td>
-      <td>
-	{{c.visits|length}}
+  {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
+	<span class="visitCount">{{c.visit_count}}</span>
         <input type="submit" class="button" name="clear" value="Unvisit" />
       </td>
-      <td>{{c.limit|escape}}</td>
+  {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
+        {{c.limit|escape}}
+      </td>
     </form>
     </tr>
 {% endfor %}

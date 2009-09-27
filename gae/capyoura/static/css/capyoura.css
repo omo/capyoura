@@ -47,6 +47,11 @@ table td {
     border-style: solid;
 }
 
+table td.exceeded .visitCount {
+    color: #c00;
+    font-weight: bold;
+}
+
 table .colSite {
     width: 15em;
 }
@@ -72,6 +77,10 @@ table .colVisit {
 
 table .rowNew {
     background-color: #eee;
+}
+
+table tr {
+    background-color: red;
 }
 
 .panel form {
