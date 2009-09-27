@@ -98,15 +98,21 @@ input[type="text"] {
     font-size: larger;
 }
 
-.button {
+.button, .minibutton {
     background-color: #46d;
     color: white;
     font-size: small;
     font-weight: bold;
     border-style: none;
     padding: 0.5em;
-    min-width: 4em;
+}
+
+.button {
     float:right;
+}
+
+.minibutton {
+    font-family: monospace;
 }
 
 .button:hover {

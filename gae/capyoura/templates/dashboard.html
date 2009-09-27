@@ -18,10 +18,14 @@
       </td>
   {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
 	<span class="visitCount">{{c.visit_count}}</span>
-        <input type="submit" class="button" name="clear" value="Unvisit" />
+        <input type="submit" class="button" name="unvisit" value="Unvisit" />
       </td>
   {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
         {{c.limit|escape}}
+	<div style="float:right;">
+          <input type="submit" class="minibutton" name="restrict" value="-" />
+          <input type="submit" class="minibutton" name="addict" value="+" />
+	</div>
       </td>
     </form>
     </tr>

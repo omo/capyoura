@@ -62,6 +62,27 @@ class Cap(db.Model):
     self.visits = [i for i in self.visits if yesterday < i] + [now]
     self.put()
 
+  def unvisit(self):
+    self.visits = []
+    self.put()
+
+  def addict(self):
+    self.limit = self.limit + self.limit_step
+    self.put()
+
+  def restrict(self):
+    self.limit = max([0, self.limit - self.limit_step])
+    self.put()
+
+  @property
+  def limit_step(self):
+    if self.limit < 20:
+      return 1
+    elif self.limit < 200:
+      return 10
+    else:
+      return 100
+
   @property
   def visit_count(self):
     return len(self.visits)
@@ -125,8 +146,14 @@ class DashboardHandler(PageHandler, RedirectMixin):
       elif self.request.get("delete"):
         self.delete_one()
         self.redirect_to_dashboard()
-      elif self.request.get("clear"):
-        self.clear_one()
+      elif self.request.get("unvisit"):
+        self.unvisit_one()
+        self.redirect_to_dashboard()
+      elif self.request.get("restrict"):
+        self.restrict_one()
+        self.redirect_to_dashboard()
+      elif self.request.get("addict"):
+        self.addict_one()
         self.redirect_to_dashboard()
       else:
         raise ValidationError("Unknown post request")
@@ -160,14 +187,16 @@ class DashboardHandler(PageHandler, RedirectMixin):
     return got
 
   def delete_one(self):
-    todelete = self.find_one()
-    todelete.delete()
+    self.find_one().delete()
 
-  def clear_one(self):
-    toclear = self.find_one()
-    toclear.visits = []
-    toclear.limit
-    toclear.put()
+  def addict_one(self):
+    self.find_one().addict()
+
+  def restrict_one(self):
+    self.find_one().restrict()
+
+  def unvisit_one(self):
+    self.find_one().unvisit()
 
   def add_new(self):
     owner  = users.get_current_user()
