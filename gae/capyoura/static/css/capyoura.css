@@ -1,0 +1,140 @@
+
+* {
+    font-family: verdana;
+    margin: 0px;
+}
+
+body {
+   background-color: #ddeef6;
+}
+
+h1, div.panel {
+    margin: 10pt;
+    padding: 10pt;;
+    border-style: dashed;
+    border-width: 2px;
+    border-color: black;
+    background-color: white;
+}
+
+h1 {
+    color: #444;
+}
+
+div.panel {
+}
+
+h3 {
+    margin: 0em;
+    padding: 0em;
+}
+
+div.subpanel {
+    margin-top: 0.5em;
+}
+
+table {
+    margin: 1em;
+    padding: 0em;
+    border-style: solid;
+    background-color: black;
+}
+
+table td {
+    font-size: larger;
+    padding: 0.3em;
+    background-color: white;
+    border-style: solid;
+}
+
+table .colSite {
+    width: 15em;
+}
+
+table .colLimit {
+    width: 5em;
+}
+
+table .colVisit {
+    width:  7em;
+}
+
+table .colLimit {
+    width:  5em;
+}
+
+table .colSite, 
+table .colLimit,
+table .colPost,
+table .colVisit {
+    font-weight: bold;
+}
+
+table .rowNew {
+    background-color: #eee;
+}
+
+.panel form {
+    display: inline;
+}
+
+input[type="text"] {
+    border-style: solid;
+    border-color: black;
+    font-size: larger;
+}
+
+.button {
+    background-color: #46d;
+    color: white;
+    font-size: small;
+    font-weight: bold;
+    border-style: none;
+    padding: 0.5em;
+    min-width: 4em;
+    float:right;
+}
+
+.button:hover {
+    background-color: #24c;
+}
+
+.panel a {
+    text-decoration: none;
+    color: #00c;
+}
+
+.panel a:hover {
+    text-decoration: underline;
+}
+
+.footer {
+    text-align: right;
+    padding-top: 0.2em;
+}
+
+.footerDownload {
+    text-align: right;
+    padding-top: 0.5em;
+}
+
+em {
+    font-style: normal;
+    font-weight: bold;
+} 
+
+p.intro {
+    font-size: larger;
+    padding-top: 1em;
+    padding-left: 3em;
+    padding-right: 3em;
+    line-height: 1.8em;
+}
+
+a.inst {
+    font-weight: bold;
+}
+
+a img {
+    border-style: none;
+}

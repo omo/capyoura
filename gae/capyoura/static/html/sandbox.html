@@ -1,0 +1,50 @@
+<html>
+<head>
+  <title>capyoura/sandbox</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+  <link href="/css/capyoura.css" rel="stylesheet" type="text/css" />
+  <script src="http://ajax.googleapis.com/ajax/libs/prototype/1.6.1.0/prototype.js" ></script>
+  <script>//<![CDATA[
+
+function submitWith(method)
+{
+   var uri = $("uri").value;
+   new Ajax.Request(uri, {
+     method: method,
+     onComplete: function(response) {
+        if (200 == response.status) {
+          $("response").value = response.responseText;
+          $("error").innerHTML = "";
+        } else {
+          $("error").innerHTML = response.responseText;
+          $("response").value = "";
+        }
+        $("status").value = response.status;
+     }
+   });
+}
+
+function init()
+{
+   $("postButton").observe("click", function(evt) { submitWith("POST"); });
+   $("getButton").observe("click", function(evt) { submitWith("GET"); });
+}
+
+//  ]]></script>
+</head>
+<body onload="init();">
+<h1>sandbox</h1>
+<div>
+  uri:<input id="uri" type="text" style="width:50em;" value="/cap/visit">
+  <input id="postButton" type="button" value="POST" />
+  <input id="getButton" type="button" value="GET" />
+</div>
+<div>
+  code: <input id="status" type="text" disabled="disabled" />
+</div>
+<div>
+  <textarea id="response" style="width:80%; height:10em" ></textarea>
+  <div id="error" />
+</div>
+</body>
+</html>

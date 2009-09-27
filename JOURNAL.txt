@@ -1,0 +1,111 @@
+
+= 2009-9-26(Sat) =
+
+== 作業開始 ==
+
+ざっと appengine のドキュメントよんで NOTE.txt 書いた. 何からやるか...
+
+なんとなく Web UI を作ってデバッグ可能にしたい気がする. 
+が, 拡張からの XHR がちゃんとクッキーつきで動くかも気になる. 
+でも gmail notifier とかあるんだからまー cookie はつくと期待して
+UI づくりとかやっちゃうのがいいかな. dashboard つくるか.
+
+== Issues ==
+
+ * テンプレート： python のテンプレートはろくなのがない...
+   * 冒険はせずチュートリアルにあった djaongo のやつにしとく
+ * json : 2.5 には標準ではいってない
+   * pure python のがあったはずなので持ってくる(あとで)
+ * テスト
+   * 基本ナシ. まーシンプルだし許してもらう. 
+   * 世間がどうしてんのは一通り動いたら調べる
+ * scheduled task
+   * 一通り動いてから考える
+
+== PEP333 ==
+
+そのうちよむ
+
+== あとで ==
+
+ * 古い visits のフィルタアウト
+
+== XXX ==
+
+HTML のレイアウトを抜き出すには？
+
+== UI ==
+
+とりあえずできた. 酷いミタメだけど動かすの優先. 
+つぎ API. 
+
+= 2009-9-27(Sun) =
+
+== クライアント作業 ==
+
+ * 起動時に list をロード -> done
+ * visit を background に通知 -> done
+ * cap を content scirpt に通知
+   * 送信 @ background -> done
+   * 受信 @ content script -> done
+ * 受信した cap を解釈 -> done
+   * tooltip だす -> done
+   * full なら警告を出す -> done
+ * dashboard 訪問時に list をリロード
+ * サインインを促す
+ * visit リセット -> done
+
+== キャッシュ ==
+
+/cap/list はキャッシュした方が良いかもなー. ブラウザ起動の度にロードする...
+
+== visit リセット ==
+
+早いとこつけないとダメだなー. デバッグで必須. -> つけた.
+
+== 拡張 ==
+
+サーバからロードしたいなあ. JS をサーバから読めばいいのか.  まあそのうち...
+
+== 時間制限 ==
+
+expire して閉じちゃうよりは, expire するたびに 1 visit を消費する方が面白いかもな.
+びみょう. あとで.
+
+== とりあえず ==
+
+最低限は動いたかなー.
+あとは:
+
+ * サインインうながす -> done
+ * dashboard で自動 list リロード -> done
+ * capScreen のミタメをもう少しなんとかする -> done
+ * ウェブの外見をなんとかする -> done
+   * レイアウト抜き出し -> done
+ * トップページをつくる -> done
+ * crx パッケージつくる : つくるのは chrome からできそう
+   * 簡単そうなら自動化
+ * ダウンロード案内 @ toppage
+ * autoupdate
+
+== 無駄に ==
+
+トップページをがんばって書いてしまった...ブラフすぎる. 
+
+== Pack extension ... ==
+
+クリックしてもなにも起きないのですが... 未実装? -> ドキュメントみるかんじできそうなんだけど. 
+
+コマンドラインから呼べるのか.
+
+{{{
+[....browser_init.cc(782)] Not implemented reached in static bool 
+BrowserInit::ProcessCmdLineImpl(const CommandLine&, const std::wstring&, bool, Profile*, int*, BrowserInit*)
+extension creation not implemented on POSIX.
+}}}
+
+あらら.
+
+ * http://d.hatena.ne.jp/Constellation/20090911/1252672391
+
+わーお. すげーこれだよ!

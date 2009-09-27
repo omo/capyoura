@@ -1,0 +1,66 @@
+
+= Capyoura - Cap YOUR Addiction =
+
+中毒気味のウェブサイトに cap をしよう!
+
+== 機能 ==
+
+必須:
+
+ * DONE: cap したいサイトの domain と制限回数を登録できる
+ * DONE: cap したいサイトを訪問すると, その訪問が記録される
+ * DONE: 訪問回数が期間内に制限を越えると警告を表示する
+
+あとで
+
+ * DONE: 履歴をリセットする
+ * 初期サイトを入れる
+ * dashboard で溢れているエントリを目立たせる
+ * 一定時間でウィンドウをクローズするオプション
+   * クローズをキャンセルするオプション
+ * ホスト名より大きな単位 (ex. 2ch.net) で制限できる
+ * DONE: ご案内ページ
+
+たぶんやらない
+ * dashboard で pagination
+
+== Server API ==
+
+訪問を記録する:
+
+URL:
+ * /cap/visit?uri=escaped(http://twitter.com)
+Response:
+ { "visited": { "site": "twitter.com", "limit": 10, "visit": 5 }  }
+ 
+依存状況一覧を取得する:
+
+ * /cap/list
+
+{
+  "list":
+  [
+    { "site": "twitter.com", "limit": 10, "visit": 5 },
+    ...
+  ]
+}
+
+== Server UI ==
+
+一覧を表示する:
+
+ * URL: /dashboard
+
+ * 機能
+   * 追加ができる
+   * 削除ができる
+   * 編集ができる
+
+API をデバッグする:
+
+ * URL: /sandbox
+
+ * 機能
+   * 指定した URL に post/get できる
+   * 結果の JSON を表示できる
+

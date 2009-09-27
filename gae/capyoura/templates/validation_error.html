@@ -1,0 +1,9 @@
+{% extends "./base.html" %}
+{% block title %}Capyoura/error{% endblock %}
+{% block content %}
+<h3>Error: {{message|escape}}</h3>
+<div class="subpanel">
+  <a href="{{backlink}}">Go back</a>
+</div>
+{% endblock content %}
+

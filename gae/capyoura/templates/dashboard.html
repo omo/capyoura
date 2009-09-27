@@ -1,0 +1,42 @@
+{% extends "./base.html" %}
+{% block title %}Capyoura/dashboard{% endblock %}
+{% block content %}
+  <h3>Your caps</h3>
+  <table border="1">
+    <tr class="header">
+      <td class="colSite">site</td>
+      <td class="colVisit">visit</td>
+      <td class="colLimit">limit/day</td>
+    </tr>
+{% for c in caps %}
+    <tr>
+    <form method="POST">
+      <td>
+	{{c.site|escape}}
+        <input type="submit" class="button" name="delete" value="Delete" />
+        <input type="hidden" name="key" value="{{c.key|escape}}" />
+      </td>
+      <td>
+	{{c.visits|length}}
+        <input type="submit" class="button" name="clear" value="Unvisit" />
+      </td>
+      <td>{{c.limit|escape}}</td>
+    </form>
+    </tr>
+{% endfor %}
+    <form method="POST" >
+    <tr >
+      <td class="rowNew"><input type="text" name="new_site" style="width:12em"/></td>
+      <td class="rowNew">&nbsp;</td>
+      <td class="rowNew">
+	<input type="text" name="new_limit"  style="width: 4em"/>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="3" class="rowNew">
+        <input type="submit" class="button" name="addnew" value="Cap new!" />
+      </td>
+    </tr>
+    </form>
+  </table>
+{% endblock content %}
