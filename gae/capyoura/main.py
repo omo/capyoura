@@ -256,11 +256,15 @@ class VisitAPIHandler(webapp.RequestHandler):
       user = users.get_current_user()
       if not user:
         raise ClientAPIErorr(403, "Should login first")
-      mayuri = self.request.get("uri")
-      if not mayuri:
-        raise ClientAPIErorr(400, "uri is missing")
-      uri = urlparse.urlparse(mayuri)
-      result = self.visit_site(user, uri.hostname)
+#      mayuri = self.request.get("uri")
+#      if not mayuri:
+#        raise ClientAPIErorr(400, "uri is missing")
+#      uri = urlparse.urlparse(mayuri)
+#      result = self.visit_site(user, uri.hostname)
+      site = self.request.get("site")
+      if not site:
+        raise ClientAPIErorr(400, "site is missing")
+      result = self.visit_site(user, site)
       self.response.headers.add_header("Content-Type", "application/json")
       self.response.out.write(simplejson.dumps(result))
     except ClientAPIErorr, e:

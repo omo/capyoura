@@ -2,6 +2,7 @@
 Capyoura = {}
 
 Capyoura.BASE_URI = "http://capyoura.appspot.com/";
+//Capyoura.BASE_URI = "http://localhost:8081/";
 
 Capyoura.loadCapList = function(capList)
 {
@@ -11,14 +12,40 @@ Capyoura.loadCapList = function(capList)
     });
 }
 
+Capyoura.listSiteCandidates = function(uri)
+{
+    var m = (new RegExp("http://(.*?)/")).exec(uri);
+    if (!m) {
+	return [];
+    }
+
+    var fullsite = m[1];
+    var ret = [];
+    var elms = fullsite.split("."); // we do not consider hostname like "foo.bar.".
+    while (0 < elms.length) {
+	ret.push(elms.join("."));
+	elms.shift();
+    }
+
+    return ret;
+}
+
 Capyoura.capFor = function(uri)
 {
     if (!Capyoura.caps) {
 	return null;
     }
 
-    var site = (new RegExp("http://(.*?)/")).exec(uri)[1];
-    return Capyoura.caps[site];
+    var maysites = Capyoura.listSiteCandidates(uri);
+    var len = maysites.length;
+    for (var i=0; i<len; ++i) {
+	var found = Capyoura.caps[maysites[i]];
+	if (found) {
+	    return found;
+	}
+    }
+    
+    return null;
 };
 
 Capyoura.updateCap = function(cap)
@@ -86,7 +113,7 @@ function CapLister(donefn, errorfn)
     window.setTimeout(this.startRequest.bind(this), 0);
 };
 
-function CapVisitor(uri, donefn, errorfn)
+function CapVisitor(cap, donefn, errorfn)
 {
     console.log("Visitor start");
 
@@ -116,7 +143,7 @@ function CapVisitor(uri, donefn, errorfn)
 	errorfn(0, error.toString());
     }.bind(this);
 
-    var topost = Capyoura.BASE_URI + 'cap/visit?uri=' + escape(uri);
+    var topost = Capyoura.BASE_URI + 'cap/visit?site=' + escape(cap.site);
     xhr.open("POST", topost, true);
     xhr.send();
 };
@@ -180,7 +207,7 @@ function initialize()
 		console.log(cap);
 		cap.visitCount++; // we know server side will doe same thing.
 		port.postMessage(cap);
-		new CapVisitor(cmd.uri, capVisited, notifyError);
+		new CapVisitor(cap, capVisited, notifyError);
 		break;
 	    case "close":
 		console.log("to close");
