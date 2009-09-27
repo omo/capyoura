@@ -10,7 +10,8 @@ function showMeterTooltip(cap)
     var level = (cap.visitCount + 1) / (cap.limit + 1);
     el.setAttribute("style", 
 		    "position:absolute; right: 1em; " +
-		    "top: 1em; background-color:red; color: white; padding: 0.5em;" +
+		    "top: 5%; background-color:red; color: white; padding: 0.5em;" +
+		    "line-height: 1.5em;" +
 		    "opacity: " + level + ";");
     el.innerHTML = ("<div>addicting...</div>" +
 		    "<div>" + cap.visitCount + "/" + cap.limit + "</div>");

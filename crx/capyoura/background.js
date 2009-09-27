@@ -1,6 +1,8 @@
 
 Capyoura = {}
 
+Capyoura.BASE_URI = "http://capyoura.appspot.com/";
+
 Capyoura.loadCapList = function(capList)
 {
     Capyoura.caps = {};
@@ -75,7 +77,7 @@ function CapLister(donefn, errorfn)
 	    errorfn(0, error.toString());
 	}.bind(this);
 
-	xhr.open("GET", 'http://capyoura.appspot.com/cap/list', true);
+	xhr.open("GET", Capyoura.BASE_URI + 'cap/list', true);
 	xhr.send();
 	// XHR fails often - we need retry.
 	window.setTimeout(this.startRequest.bind(this), 3000);
@@ -114,7 +116,7 @@ function CapVisitor(uri, donefn, errorfn)
 	errorfn(0, error.toString());
     }.bind(this);
 
-    var topost = 'http://capyoura.appspot.com/cap/visit?uri=' + escape(uri);
+    var topost = Capyoura.BASE_URI + 'cap/visit?uri=' + escape(uri);
     xhr.open("POST", topost, true);
     xhr.send();
 };
@@ -176,6 +178,7 @@ function initialize()
 		}
 
 		console.log(cap);
+		cap.visitCount++; // we know server side will doe same thing.
 		port.postMessage(cap);
 		new CapVisitor(cmd.uri, capVisited, notifyError);
 		break;
