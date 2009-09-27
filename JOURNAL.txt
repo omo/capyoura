@@ -109,3 +109,15 @@ extension creation not implemented on POSIX.
  * http://d.hatena.ne.jp/Constellation/20090911/1252672391
 
 わーお. すげーこれだよ!
+
+== リリース! ==
+
+誰にも公開はしないので気持ちの上で。しばらく dogfood しつつちまい改善をやることにしよう.
+NOTE より
+
+ * DONE: dashboard で溢れているエントリを目立たせる
+ * DONE: 初期サイトを入れる
+ * DONE: 完全にデータを削除する
+ * ホスト名より大きな単位 (ex. 2ch.net) で制限できる
+
+あとアイコンの透過色はいまいちだった. 背景と同じ色にしよう. -> やった

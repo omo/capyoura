@@ -5,7 +5,7 @@
   <title>capyoura/dashboard</title>
 </head>
 <body>
-<h1>{% block title %}Title{% endblock %}</h1>
+<h1><a href="/dashboard">Capyoura</a>/{% block title %}Title{% endblock %}</h1>
 
 <div class="panel">
 {% block content %}Content{% endblock content %}
@@ -14,8 +14,9 @@
 <div class="panel">
     <div class="footer">
   {% if user %}
+      <span><a href="/dashboard">Dashboard</a></span> | 
       <span><a href="{{logout_url}}">Logout</a></span> | 
-      <span><a href="{{logout_url}}">Delete All</a></span>
+      <span><a href="/resign">Resign</a></span>
   {% else %}
       <span><a href="{{login_url}}">Login (Google accounts)</a></span>
   {% endif %}

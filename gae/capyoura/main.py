@@ -29,8 +29,15 @@ from google.appengine.ext import db
 from google.appengine.ext.webapp.util import login_required
 
 class RedirectMixin(object):
+
   def redirect_to_dashboard(self):
     self.redirect("/dashboard")
+
+  def redirect_to_welcome(self):
+    self.redirect("/")
+
+  def redirect_to_logout_welcome(self):
+    self.redirect(users.create_logout_url("/"))
 
 
 class ValidationError(Exception):
@@ -38,6 +45,10 @@ class ValidationError(Exception):
   def __init__(self, msg):
     Exception.__init__(self, msg)
 
+
+# just for track first login...
+class Profile(db.Model):
+  user  = db.UserProperty(required=True)
 
 class Cap(db.Model):
   owner  = db.UserProperty(required=True)
@@ -100,6 +111,7 @@ class DashboardHandler(PageHandler, RedirectMixin):
   @login_required
   def get(self):
     user = users.get_current_user()
+    self.ensure_profile(user)
     caps = Cap.all().filter('owner =', user).fetch(LARGE_ENOUGH_TO_FETCH)
     self.response.out.write(template.render(self.template_path, 
                                             self.template_vars({"caps": caps})))
@@ -130,6 +142,12 @@ class DashboardHandler(PageHandler, RedirectMixin):
   @property
   def validation_error_template_path(self):
     return os.path.join(os.path.dirname(__file__), 'templates/validation_error.html')
+
+  def ensure_profile(self, user):
+    if 0 < Profile.all().filter("user =", user).count():
+      return
+    Profile(user=user).put()
+    Cap(owner=user, site="twitter.com", limit=20).put() # just for explanation
 
   def find_one(self):
     owner = users.get_current_user()
@@ -165,6 +183,27 @@ class DashboardHandler(PageHandler, RedirectMixin):
     toadd  = Cap(owner=owner, site=site, limit=limit)
     toadd.put()
 
+
+class ResignHandler(PageHandler, RedirectMixin):
+
+  @property
+  def template_path(self):
+    return os.path.join(os.path.dirname(__file__), 'templates/resign.html')
+
+  @login_required
+  def get(self):
+    self.response.out.write(template.render(self.template_path,
+                                            self.template_vars()))
+
+  def post(self):
+    user = users.get_current_user()
+    if not user:
+      return self.redirect_to_welcome()
+    db.delete(Profile.all().filter("user =", user).fetch(10))
+    # XXX: iterate until all data is really deleted.
+    db.delete(Cap.all().filter('owner =', user).fetch(1000))
+    self.redirect_to_logout_welcome()
+    
 class ClientAPIErorr(Exception):
 
   def __init__(self, status, message):
@@ -223,6 +262,7 @@ class ListAPIHandler(webapp.RequestHandler):
 
 def main():
   application = webapp.WSGIApplication([('/dashboard', DashboardHandler),
+                                        ('/resign', ResignHandler),
                                         ('/cap/visit', VisitAPIHandler),
                                         ('/cap/list', ListAPIHandler),
                                         ('/', WelcomeHandler)],
