@@ -1,7 +1,7 @@
 {% extends "./base.html" %}
 {% block title %}welcome{% endblock %}
 {% block content %}
-<h2>Welcome to Capyoura!</h2>
+<h2>Say Good-bye to the Web addiction!</h2>
 <p class="intro">
 <img src="/images/sshot_20090927_0.png" style="float:right; margin-left: 1em;" />
 <em>Capyoura</em> <span class="pronouncej">(pronounced かぴゅーら)</span> or
@@ -13,19 +13,25 @@ keeps you away from <em>Endless Web Browsing</em>; One of the worst addictions e
 Capyoura's browser extension watches what and how many web sites you browse, 
 and "cap" them when you seems get addicted.
 </p>
-<h2>How to use it?</h2>
+<h2>How to try it?</h2>
 <p class="intro">
 <a href="/dashboard"><img src="/images/sshot_20090927_1.png" style="float:left; margin-right: 1em" /></a>
-To use Capyoura, You need <a class="inst" href="{{crx_url}}">download and install</a> the extension, 
-then <a class="inst" href="/dashboard">login</a> this site to register your favorites/addictives and
-their tolerable level in maximum visits per day.
-</p>
+To try Capyoura, You need <a class="inst" href="{{crx_url}}">download</a> and install the extension. 
+then <a class="inst" href="/dashboard">login</a> this site.
+<p>
 <p class="intro">
 We use <a href="https://www.google.com/accounts">Google accounts</a>,
-so NO extra signup/registation is required.
+so no extra signup/registation is required.
 </p>
 <p class="intro">
-<em>Say Goodbye to your addiction</em>. We'll help you!
+After registering your favorites/addictives and
+their tolerable level, Capyoura automatically start watching you browsing Web.
 </p>
-
+<p class="intro">
+</p>
+<h2>Privacy Concern?</h2>
+<p class="intro">
+Because Capyoura extension only tell the server when you visits your capped sites,
+<em>NO confidential information is sent</em> unless it is registered to your cap list.
+</p>
 {% endblock content %}

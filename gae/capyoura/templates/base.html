@@ -2,16 +2,11 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
   <link href="/css/capyoura.css" rel="stylesheet" type="text/css" />
-  <title>capyoura/dashboard</title>
+  <title>capyoura</title>
 </head>
 <body>
-<h1><a href="/dashboard">Capyoura</a>/{% block title %}Title{% endblock %}</h1>
 
-<div class="panel">
-{% block content %}Content{% endblock content %}
-</div>
-
-<div class="panel">
+<div class="top panel">
     <div class="footer">
   {% if user %}
       <span><a href="/dashboard">Dashboard</a></span> | 
@@ -21,8 +16,19 @@
       <span><a href="{{login_url}}">Login (Google accounts)</a></span>
   {% endif %}
     </div>
+</div>
+
+<h1>
+  <a href="/dashboard">Capyoura</a>/{% block title %}Title{% endblock %}
+</h1>
+
+<div class="panel">
+{% block content %}Content{% endblock content %}
+</div>
+
+<div class="panel">
   <div class="footerDownload">
-    <span><a href="{{crx_url}}">Download Chrome extension</a></span>
+    <span><a href="{{crx_url}}">Chrome extension</a></span>
   </div>
 </div>
 
