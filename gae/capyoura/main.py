@@ -17,6 +17,7 @@
 
 import os
 import logging
+import time
 import datetime
 import urlparse
 import wsgiref.handlers
@@ -87,8 +88,11 @@ class Cap(db.Model):
   def visit_count(self):
     return len(self.visits)
 
+  @property
+  def visit_seconds(self):
+    return [int(time.mktime(t.timetuple())) for t in self.visits]
   def to_plain(self):
-    return { "site": self.site, "visitCount": self.visit_count, "limit": self.limit }
+    return { "site": self.site, "visits": self.visit_seconds, "limit": self.limit }
 
   @property
   def exceeded(self):
@@ -256,11 +260,6 @@ class VisitAPIHandler(webapp.RequestHandler):
       user = users.get_current_user()
       if not user:
         raise ClientAPIErorr(403, "Should login first")
-#      mayuri = self.request.get("uri")
-#      if not mayuri:
-#        raise ClientAPIErorr(400, "uri is missing")
-#      uri = urlparse.urlparse(mayuri)
-#      result = self.visit_site(user, uri.hostname)
       site = self.request.get("site")
       if not site:
         raise ClientAPIErorr(400, "site is missing")

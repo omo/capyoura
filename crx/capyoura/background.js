@@ -188,6 +188,24 @@ function listCaps()
     new CapLister(listLoaded, notifyError);
 }
 
+function yesterday()
+{
+    var today = new Date();
+    today.setDate(today.getDate()-1);
+    return today;
+}
+
+function tosec(date) {
+    return date.getTime()/1000;
+}
+function revisit(lastVisits)
+{
+    var y = tosec(yesterday());
+    return lastVisits.concat([tosec(new Date())]).filter(function (d) {
+	return y < d;
+    });
+}
+
 function initialize()
 {
     chrome.extension.onConnect.addListener(function(port) {
@@ -204,9 +222,8 @@ function initialize()
 		    return;
 		}
 
-		console.log(cap);
-		cap.visitCount++; // we know server side will doe same thing.
-		port.postMessage(cap);
+		cap.visits = revisit(cap.visits); 
+		port.postMessage(Object.toJSON(cap));
 		new CapVisitor(cap, capVisited, notifyError);
 		break;
 	    case "close":

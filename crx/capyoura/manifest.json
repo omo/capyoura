@@ -1,6 +1,6 @@
 {
   "name": "Capyoura",
-  "version": "0.1.2", 
+  "version": "0.1.3", 
   "description": "Cap Your Addiction with watching your daily habit",
   "update_url": "http://capyoura.appspot.com/releases/update.xml",
   "content_scripts": [
