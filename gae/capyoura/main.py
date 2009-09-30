@@ -124,6 +124,11 @@ class Cap(db.Model):
              "limit": self.limit, "timer": (self.timer or 0) }
 
   @property
+  def nearest_uncap(self):
+    d = datetime.timedelta(days=1)
+    return self.fresh_visits[0] + d
+
+  @property
   def exceeded(self):
     return self.limit <= self.visit_count
   
@@ -138,7 +143,8 @@ class PageHandler(webapp.RequestHandler):
       "user": users.get_current_user(),
       "login_url": users.create_login_url(self.request.uri),
       "logout_url": users.create_logout_url("/"),
-      "crx_url": "/releases/capyoura.crx"
+      "crx_url": "/releases/capyoura.crx",
+      "now": datetime.datetime.now()
     }
 
     if tomerge:
@@ -252,7 +258,8 @@ class DashboardHandler(PageHandler, RedirectMixin):
       limit = int(self.request.get("new_limit"))
     except ValueError:
       raise ValidationError("Limit is not given or invalid")
-    
+    if limit <= 0:
+      raise ValidationError("Limit should be positive")
     timer_str = self.request.get("new_timer")
     if timer_str:
       try:
