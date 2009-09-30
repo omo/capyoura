@@ -59,8 +59,7 @@ class Cap(db.Model):
 
   def visit(self):
     now = datetime.datetime.now()
-    yesterday = now - VISIT_LIFETIME
-    self.visits = [i for i in self.visits if yesterday < i] + [now]
+    self.visits = self.fresh_visits + [now]
     self.put()
 
   def unvisit(self):
@@ -85,8 +84,18 @@ class Cap(db.Model):
       return 100
 
   @property
+  def fresh_visits(self):
+    now = datetime.datetime.now()
+    yesterday = now - VISIT_LIFETIME
+    return [i for i in self.visits if yesterday < i]
+
+  @property
   def visit_count(self):
     return len(self.visits)
+
+  @property
+  def fresh_visit_count(self):
+    return len(self.fresh_visits)
 
   @property
   def visit_seconds(self):

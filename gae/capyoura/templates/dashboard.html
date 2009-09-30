@@ -17,7 +17,7 @@
         <input type="hidden" name="key" value="{{c.key|escape}}" />
       </td>
   {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
-	<span class="visitCount">{{c.visit_count}}</span>
+	<span class="visitCount">{{c.fresh_visit_count}}</span>
         <input type="submit" class="button" name="unvisit" value="Unvisit" />
       </td>
   {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
