@@ -7,24 +7,40 @@
       <td class="colSite">site</td>
       <td class="colVisit">visit</td>
       <td class="colLimit">limit/day</td>
+      <td class="colLimit">timer(min)</td>
     </tr>
 {% for c in caps %}
     <tr>
     <form method="POST">
+        <input type="hidden" name="key" value="{{c.key|escape}}" />
   {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
 	{{c.site|escape}}
         <input type="submit" class="button" name="delete" value="Delete" />
-        <input type="hidden" name="key" value="{{c.key|escape}}" />
       </td>
   {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
-	<span class="visitCount">{{c.fresh_visit_count}}</span>
-        <input type="submit" class="button" name="unvisit" value="Unvisit" />
+	<div style="float:left;">
+          <input type="submit" class="button" name="unvisit" value="Unvisit" />
+	</div>
+	<div style="float: right">
+	  <span class="visitCount">{{c.fresh_visit_count}}</span>
+	</div>
       </td>
   {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
-        {{c.limit|escape}}
-	<div style="float:right;">
+	<div style="float:right">
+          {{c.limit|escape}}
+	</div>
+	<div style="float:left;">
           <input type="submit" class="minibutton" name="restrict" value="-" />
           <input type="submit" class="minibutton" name="addict" value="+" />
+	</div>
+      </td>
+  {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
+	<div style="float:right">
+          {{c.timer|default_if_none:""}}
+	</div>
+	<div style="float:left;">
+          <input type="submit" class="minibutton" name="restrict_timer" value="-" />
+          <input type="submit" class="minibutton" name="addict_timer" value="+" />
 	</div>
       </td>
     </form>
@@ -37,10 +53,13 @@
       <td class="rowNew">
 	<input type="text" name="new_limit"  style="width: 4em"/>
       </td>
+      <td class="rowNew">
+	<input type="text" name="new_timer"  style="width: 4em"/>
+      </td>
     </tr>
     <tr>
-      <td colspan="3" class="rowNew">
-        <input type="submit" class="button" name="addnew" value="Cap new!" />
+      <td colspan="4" class="rowNew">
+        <input type="submit" class="embutton" name="addnew" value="Cap new!" />
       </td>
     </tr>
     </form>

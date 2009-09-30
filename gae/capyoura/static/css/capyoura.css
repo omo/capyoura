@@ -54,7 +54,7 @@ table {
 }
 
 table td {
-    font-size: larger;
+    font-size: medium;
     padding: 0.3em;
     background-color: white;
     border-style: solid;
@@ -74,12 +74,9 @@ table .colLimit {
 }
 
 table .colVisit {
-    width:  7em;
+    width: 7em;
 }
 
-table .colLimit {
-    width:  5em;
-}
 
 table .colSite, 
 table .colLimit,
@@ -103,27 +100,33 @@ table tr {
 input[type="text"] {
     border-style: solid;
     border-color: black;
-    font-size: larger;
+    font-size: medium;
 }
 
-.button, .minibutton {
+.button, .minibutton, .embutton {
     background-color: #46d;
     color: white;
-    font-size: small;
+    font-size: x-small;
     font-weight: bold;
     border-style: none;
-    padding: 0.5em;
+    padding: 0.4em;
 }
 
 .button {
     float:right;
 }
 
-.minibutton {
-    font-family: monospace;
+.embutton {
+    float:right;
+    font-size: small;
 }
 
-.button:hover {
+.minibutton {
+    font-family: monospace;
+    vertical-align: middle;
+}
+
+.button:hover, .minibutton:hover {
     background-color: #24c;
 }
 

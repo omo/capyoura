@@ -55,6 +55,7 @@ class Cap(db.Model):
   owner  = db.UserProperty(required=True)
   site = db.StringProperty(required=True)
   limit  = db.IntegerProperty(required=True)
+  timer  = db.IntegerProperty()
   visits = db.ListProperty(datetime.datetime, required=True)
 
   def visit(self):
@@ -74,15 +75,32 @@ class Cap(db.Model):
     self.limit = max([0, self.limit - self.limit_step])
     self.put()
 
+  def addict_timer(self):
+    self.timer = (self.timer or 0) + self.timer_step
+    self.put()
+
+  def restrict_timer(self):
+    self.timer = max([0, (self.timer or 0) - self.timer_step])
+    if not self.timer:
+      self.timer = None
+    self.put()
+
+  @property
+  def timer_step(self):
+    return self.compute_step(self.timer or 0)
+
   @property
   def limit_step(self):
-    if self.limit < 20:
+    return self.compute_step(self.limit)
+
+  def compute_step(self, num):
+    if num < 20:
       return 1
-    elif self.limit < 200:
+    elif num < 200:
       return 10
     else:
       return 100
-
+    
   @property
   def fresh_visits(self):
     now = datetime.datetime.now()
@@ -100,13 +118,15 @@ class Cap(db.Model):
   @property
   def visit_seconds(self):
     return [int(time.mktime(t.timetuple())) for t in self.visits]
+
   def to_plain(self):
-    return { "site": self.site, "visits": self.visit_seconds, "limit": self.limit }
+    return { "site": self.site, "visits": self.visit_seconds, 
+             "limit": self.limit, "timer": (self.timer or 0) }
 
   @property
   def exceeded(self):
     return self.limit <= self.visit_count
-
+  
 
 LARGE_ENOUGH_TO_FETCH = 100
 VISIT_LIFETIME = datetime.timedelta(days=1)
@@ -168,6 +188,12 @@ class DashboardHandler(PageHandler, RedirectMixin):
       elif self.request.get("addict"):
         self.addict_one()
         self.redirect_to_dashboard()
+      elif self.request.get("restrict_timer"):
+        self.restrict_timer_one()
+        self.redirect_to_dashboard()
+      elif self.request.get("addict_timer"):
+        self.addict_timer_one()
+        self.redirect_to_dashboard()
       else:
         raise ValidationError("Unknown post request")
     except ValidationError, e:
@@ -208,6 +234,12 @@ class DashboardHandler(PageHandler, RedirectMixin):
   def restrict_one(self):
     self.find_one().restrict()
 
+  def addict_timer_one(self):
+    self.find_one().addict_timer()
+
+  def restrict_timer_one(self):
+    self.find_one().restrict_timer()
+
   def unvisit_one(self):
     self.find_one().unvisit()
 
@@ -220,9 +252,19 @@ class DashboardHandler(PageHandler, RedirectMixin):
       limit = int(self.request.get("new_limit"))
     except ValueError:
       raise ValidationError("Limit is not given or invalid")
+    
+    timer_str = self.request.get("new_timer")
+    if timer_str:
+      try:
+        timer = int(timer_str)
+      except ValueError:
+        raise ValidationError("Timer is invalid")
+    else:
+      timer = None
+
     if 0 < Cap.all().filter('owner =', owner).filter('site =', site).count():
       raise ValidationError("site %s is already capped" % site)
-    toadd  = Cap(owner=owner, site=site, limit=limit)
+    toadd  = Cap(owner=owner, site=site, limit=limit, timer=timer)
     toadd.put()
 
 
