@@ -65,6 +65,10 @@ table td.exceeded .visitCount {
     font-weight: bold;
 }
 
+table td.note {
+    font-size: x-small;
+}
+
 table .colSite {
     width: 15em;
 }
