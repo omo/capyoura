@@ -130,8 +130,7 @@ class Cap(db.Model):
 
   @property
   def exceeded(self):
-    return self.limit <= self.visit_count
-  
+   return self.limit <= self.fresh_visit_count
 
 LARGE_ENOUGH_TO_FETCH = 100
 VISIT_LIFETIME = datetime.timedelta(days=1)
