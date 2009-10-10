@@ -18,19 +18,19 @@
  * DONE: dashboard で溢れているエントリを目立たせる
  * DONE: アカウントを削除する
  * DONE: ご案内ページ
- * screen
+ * > screen
    * XXXX: screen の z-index を指定 -> なんか z-index の理解を間違えてたっぽい
    * DONE: ちょっと位置さげる -> 下げた
  * DONE: limit を増減する
  * DONE: ホスト名より大きな単位 (ex. 2ch.net) で制限できる
  * DONE: カウントダウンをクリックするとカウントダウンとめる
- * 無効化/ログアウトを即座に反映するように
-   * http://capyoura.appspot.com/ でフック
-   * ログイン失敗したら既存の caps テーブルをクリア
- * 一定時間でウィンドウをクローズするオプション
+ * DONE: 一定時間でウィンドウをクローズするオプション
    * タイマー
-   * タブのフォーカス
    * クローズをキャンセルするオプション
+ * 無効化/ログアウトを即座に反映するように
+   * DONE: http://capyoura.appspot.com/ でフック
+   * DONE: ログイン失敗したら既存の caps テーブルをクリア
+ * AJAX site 対応
  * dashboard で頻度チャートを表示
 
 
@@ -38,6 +38,7 @@
 
 たぶんやらない
  * dashboard で pagination
+ * limit の件数制限
 
 == Server API ==
 
