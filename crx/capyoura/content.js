@@ -1,21 +1,53 @@
 
 /* */
 
-var VISIT_DELAY = 500; // effort to skip redirection
 var SHUTDOWN_COUNT = 5;
 
 var g_port = chrome.extension.connect();
 
+function postVisited()
+{
+    g_port.postMessage({ type: "visited", uri: document.location.href });
+}
+
 function ensureElement(tagName, id) {
     var e = document.getElementById(id);
     if (e) {
-	e.parent.removeChild(e);
+	e.parentNode.removeChild(e);
 	return e;
     }
 
     e = document.createElement(tagName);
     e.setAttribute("id", id);
     return e;
+}
+
+var g_revisitTimer = null;
+
+function startRevisitTimer(expiration)
+{
+    if (null != g_revisitTimer)
+	return;
+
+    g_revisitTimer = window.setInterval(function() {
+	postVisited();
+    }, expiration);
+}
+
+function stopRevisitTimer()
+{
+    if (g_revisitTimer) {
+	window.clearInterval(g_revisitTimer);
+	g_revisitTimer = null;
+    }
+}
+
+function hideMeterTooltip()
+{
+    var el = document.getElementById("addictionMeter");
+    if (!el)
+	return;
+    el.style.display = "none";
 }
 
 function showMeterTooltip(cap)
@@ -27,9 +59,24 @@ function showMeterTooltip(cap)
 		    "top: 5%; background-color:red; color: white; padding: 0.5em;" +
 		    "font-family: verdana; font-weight: bold; line-height: 1.5em;" +
 		    "opacity: " + level + ";");
+
     el.innerHTML = ("<div>addicting...</div>" +
 		    "<div>" + cap.visits.length + "/" + cap.limit + "</div>");
     document.body.appendChild(el);
+
+    if (0 < cap.timer) {
+	// when we have timer for the site,
+	// the timer can be stopped by clicking the meter.
+	el.style.cursor = "pointer";
+	el.setAttribute("title", "click to stop");
+	el.addEventListener("click", stopMeter);
+    }
+}
+
+function stopMeter()
+{
+    stopRevisitTimer();
+    hideMeterTooltip();
 }
 
 function requestClose()
@@ -91,7 +138,8 @@ function showCapScreen(cap)
     var counterStyle = ("color: #2276bb; " +
 			"font-weight: bold; font-size: 38px; width:1.5em; text-align: center;" +
 			"position: fixed; top: 80%; left: 80%; " + 
-			"border-style: solid; border-color: #2276bb; border-width: 5pt; padding: 0.2em");
+			"border-style: solid; border-color: #2276bb; border-width: 5pt; padding: 0.2em; " +
+			"cursor: pointer;");
 
     el.innerHTML = ("<div style='text-align:left; font-family: verdana; color: #900;"  +
  		    "font-weight: bold; font-size: 32pt; padding-bottom:0.5em; '>" +
@@ -117,8 +165,9 @@ function showCapScreen(cap)
 		   );
     document.body.appendChild(el);
 
-    el.addEventListener
+    document.getElementById("cyaCounter").addEventListener
     ("click", function(evt) {
+	evt.target.style.borderColor = evt.target.style.color = 'gray';
 	cancelClose();
     });
 
@@ -141,19 +190,21 @@ function showCapScreen(cap)
 function initialize()
 {
     g_port.onMessage.addListener(function(capStr) {
-	cap = JSON.parse(capStr);
+	cap = JSON.parse(capStr); 
 	if (cap.visits.length < cap.limit) {
 	    showMeterTooltip(cap);
+	    if (0 < cap.timer) {
+		startRevisitTimer(cap.timer*60*1000);
+	    }
 	} else {
+	    stopMeter();
 	    showCapScreen(cap);
 	}
     });
 
-    window.setTimeout(function() {
-	if (window.parent == window) { // only visit root frame
-	    g_port.postMessage({ type: "opened", uri: document.location.href });
-	}
-    }, VISIT_DELAY);
+    if (window.parent == window) { // only visit root frame
+	postVisited();
+    }
 }
 
 initialize();

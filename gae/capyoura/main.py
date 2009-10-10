@@ -16,11 +16,14 @@
 #
 
 import os
+import types
 import logging
 import time
+import math
 import datetime
 import urlparse
 import wsgiref.handlers
+
 
 from django.utils import simplejson
 from google.appengine.api import users
@@ -55,7 +58,7 @@ class Cap(db.Model):
   owner  = db.UserProperty(required=True)
   site = db.StringProperty(required=True)
   limit  = db.IntegerProperty(required=True)
-  timer  = db.IntegerProperty()
+  timer  = db.FloatProperty()
   visits = db.ListProperty(datetime.datetime, required=True)
 
   def visit(self):
@@ -75,26 +78,35 @@ class Cap(db.Model):
     self.limit = max([0, self.limit - self.limit_step])
     self.put()
 
+  def round_tithe(self, x):
+    frac = math.fabs(x*10) - int(math.fabs(x*10))
+    if 0.5 <= frac:
+      return math.ceil(x*10.0)/10.0
+    else:
+      return math.floor(x*10.0)/10.0
+
   def addict_timer(self):
-    self.timer = (self.timer or 0) + self.timer_step
+    self.timer = self.round_tithe((self.timer or 0.0) + self.timer_step)
     self.put()
 
   def restrict_timer(self):
-    self.timer = max([0, (self.timer or 0) - self.timer_step])
+    self.timer = self.round_tithe(max([0.0, (self.timer or 0.0) - self.timer_step]))
     if not self.timer:
       self.timer = None
     self.put()
 
   @property
   def timer_step(self):
-    return self.compute_step(self.timer or 0)
+    return self.compute_step(self.timer or 0.0)
 
   @property
   def limit_step(self):
     return self.compute_step(self.limit)
 
   def compute_step(self, num):
-    if num < 20:
+    if num < 2 and types.FloatType == type(num):
+      return 0.1 # 0.001 to overcome floor
+    elif num < 20:
       return 1
     elif num < 200:
       return 10
@@ -121,7 +133,7 @@ class Cap(db.Model):
 
   def to_plain(self):
     return { "site": self.site, "visits": self.visit_seconds, 
-             "limit": self.limit, "timer": (self.timer or 0) }
+             "limit": self.limit, "timer": (self.timer or 0.0) }
 
   @property
   def nearest_uncap(self):
@@ -262,7 +274,7 @@ class DashboardHandler(PageHandler, RedirectMixin):
     timer_str = self.request.get("new_timer")
     if timer_str:
       try:
-        timer = int(timer_str)
+        timer = float(timer_str)
       except ValueError:
         raise ValidationError("Timer is invalid")
     else:

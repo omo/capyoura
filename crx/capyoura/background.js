@@ -1,8 +1,8 @@
 
 Capyoura = {}
 
-Capyoura.BASE_URI = "http://capyoura.appspot.com/";
-//Capyoura.BASE_URI = "http://localhost:8081/";
+//Capyoura.BASE_URI = "http://capyoura.appspot.com/";
+Capyoura.BASE_URI = "http://localhost:8081/";
 
 Capyoura.clearCap = function()
 {
@@ -220,17 +220,28 @@ function initialize()
 	port.onMessage.addListener(function(cmd) {
 	    switch (cmd.type)
 	    {
-	    case "opened":
-		console.log("opened:", cmd.uri);
+	    case "visited":
+		console.log("visited:", cmd.uri);
 		var cap = Capyoura.capFor(cmd.uri);
 		if (!cap) {
 		    console.log("cap is not found for: " + cmd.uri);
 		    return;
 		}
 
-		cap.visits = revisit(cap.visits); 
-		port.postMessage(Object.toJSON(cap));
-		new CapVisitor(cap, capVisited, notifyError);
+		chrome.tabs.getSelected(null, function(selectedTab) {
+		    if (selectedTab.id != port.tab.id) {
+			// source tab is not active one - we can ignore the visit.
+			return;
+		    }
+
+		    cap.visits = revisit(cap.visits); 
+		    
+		    // XXX: prototype.js make JSON.stringify wrong, 
+		    // that seems break object serialization for inter-process communication.
+		    // so we serialize it with hand.
+		    port.postMessage(Object.toJSON(cap));
+		    new CapVisitor(cap, capVisited, notifyError);
+		});
 		break;
 	    case "close":
 		console.log("to close");
