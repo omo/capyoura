@@ -10,7 +10,8 @@
     },
     {
       "js": [ "dashboard_content.js" ], 
-      "matches": [ "http://capyoura.appspot.com/dashboard" ]
+      "matches": [ "http://capyoura.appspot.com/dashboard",
+                   "http://capyoura.appspot.com/" ]
     }
   ], 
   "background_page": "background.html",
