@@ -4,13 +4,18 @@ Capyoura = {}
 Capyoura.BASE_URI = "http://capyoura.appspot.com/";
 //Capyoura.BASE_URI = "http://localhost:8081/";
 
-Capyoura.loadCapList = function(capList)
+Capyoura.clearCap = function()
 {
     Capyoura.caps = {};
+};
+
+Capyoura.loadCapList = function(capList)
+{
+    Capyoura.clearCap();
     capList.each(function (item) {
 	Capyoura.caps[item.site] = item;
     });
-}
+};
 
 Capyoura.listSiteCandidates = function(uri)
 {
@@ -28,7 +33,7 @@ Capyoura.listSiteCandidates = function(uri)
     }
 
     return ret;
-}
+};
 
 Capyoura.capFor = function(uri)
 {
@@ -168,6 +173,7 @@ function notifyError(status, message) {
     switch (status)
     {
     case 403:
+	Capyoura.clearCap();
 	promptLogin();
 	break;
     default:
