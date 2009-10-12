@@ -1,19 +1,6 @@
 
 var Chart = {};
 
-Chart.parseQueryString = function(uri)
-{
-    var i = uri.indexOf("?");
-    if (i < 0)
-	return {};
-    
-    return uri.substr(i+1).split('&').inject({}, function(a, i) {
-	var kv = i.split("=");
-	a[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]);
-	return a;
-    });
-};
-
 Chart.formatLabelDate = function(date)
 {
     var d = date.getHours().toString();
@@ -135,7 +122,7 @@ Chart.redraw = function(id)
 
 Chart.init = function(id)
 {
-    var query = Chart.parseQueryString(document.location.href);
+    var query = Capyoura.parseQueryString(document.location.href);
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
 	if (xhr.readyState == 4 && xhr.status == 200) {

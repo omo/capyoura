@@ -221,6 +221,7 @@ function initialize()
 	    switch (cmd.type)
 	    {
 	    case "visited":
+
 		console.log("visited:", cmd.uri);
 		var cap = Capyoura.capFor(cmd.uri);
 		if (!cap) {
@@ -228,19 +229,22 @@ function initialize()
 		    return;
 		}
 
+		cap.visits = revisit(cap.visits); 
+		passes = 0;
+		    
+		// XXX: prototype.js make JSON.stringify wrong, 
+		// that seems break object serialization for inter-process communication.
+		// so we serialize it with hand.
+		port.postMessage(Object.toJSON({ type: "cap", "cap": cap }));
+		new CapVisitor(cap, capVisited, notifyError);
+		break;
+	    case "passing":
 		chrome.tabs.getSelected(null, function(selectedTab) {
 		    if (selectedTab.id != port.tab.id) {
-			// source tab is not active one - we can ignore the visit.
-			return;
+			return; // source tab is not active one - we can ignore the passing.
 		    }
 
-		    cap.visits = revisit(cap.visits); 
-		    
-		    // XXX: prototype.js make JSON.stringify wrong, 
-		    // that seems break object serialization for inter-process communication.
-		    // so we serialize it with hand.
-		    port.postMessage(Object.toJSON(cap));
-		    new CapVisitor(cap, capVisited, notifyError);
+		    port.postMessage(Object.toJSON({ type: "passed" }));
 		});
 		break;
 	    case "close":

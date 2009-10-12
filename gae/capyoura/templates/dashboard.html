@@ -3,12 +3,13 @@
 {% block head %}
   <script src="/js/dashboard.js" ></script>
 {% endblock %}
+{% block onload %}initDashboard();{% endblock onload %}
 {% block content %}
   <h3>Your caps</h3>
   <table border="1">
     <tr class="header">
       <td class="colSite">site</td>
-      <td class="colVisit">visit</td>
+      <td class="colVisit">visits</td>
       <td class="colLimit">limit/day</td>
       <td class="colLimit">timer(min)</td>
     </tr>
@@ -25,7 +26,8 @@
           <input type="submit" class="button" name="unvisit" value="Unvisit" />
 	</div>
 	<div style="float: right">
-	  <a href="#" onclick="showChart(evt, '{{c.site|escape}}');">
+	  <a href="#" onclick="handleChart(evt, '{{c.site|escape}}');"
+	     title="click to show chart">
 	    <span class="visitCount">{{c.fresh_visit_count}}</span>
 	  </a>
 	</div>

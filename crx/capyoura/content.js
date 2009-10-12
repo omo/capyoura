@@ -2,12 +2,18 @@
 /* */
 
 var SHUTDOWN_COUNT = 5;
+var PASSING_INTERVAL = 1000;
 
 var g_port = chrome.extension.connect();
 
 function postVisited()
 {
     g_port.postMessage({ type: "visited", uri: document.location.href });
+}
+
+function postPassing()
+{
+    g_port.postMessage({ type: "passing" });
 }
 
 function ensureElement(tagName, id) {
@@ -22,24 +28,66 @@ function ensureElement(tagName, id) {
     return e;
 }
 
-var g_revisitTimer = null;
+var g_passingTimer = null;
 
-function startRevisitTimer(expiration)
+function PassingProgress(cap)
 {
-    if (null != g_revisitTimer)
-	return;
+    this.cap = cap;
+    this.startTime = (new Date()).getTime();
+    this.passings = 0;
+    this.passes = 0;
 
-    g_revisitTimer = window.setInterval(function() {
-	postVisited();
+    this.markPassing = function() {
+	this.passings++;
+    };
+
+    this.markPassed = function() {
+	this.passes++; 
+    };
+
+    this.activeRate = function() {
+	return this.passes/this.passings;
+    };
+
+    this.activeDuraton = function (now) {
+	return (now - this.startTime)*(this.activeRate());
+    };
+
+    this.expired = function(now) {
+	var tms = this.cap.timer*60*1000;
+	var ams = this.activeDuraton(now);
+	return tms < ams;
+    };
+
+    this.log = function() {
+	console.log("progress", this.passings, this.passes, this.startTime, this.cap);
+    };
+}
+
+function startPassingTimer(progress, expiration)
+{
+    g_passingTimer = window.setInterval(function() {
+	progress.markPassing();
+	postPassing();
     }, expiration);
 }
 
-function stopRevisitTimer()
+function stopPassingTimer()
 {
-    if (g_revisitTimer) {
-	window.clearInterval(g_revisitTimer);
-	g_revisitTimer = null;
+    if (g_passingTimer) {
+	window.clearInterval(g_passingTimer);
+	g_passingTimer = null;
     }
+}
+
+function handlePassed(progress)
+{
+    progress.markPassed();
+    var now = new Date().getTime();
+    if (!progress.expired(now))
+	return;
+    stopPassingTimer();
+    postVisited();
 }
 
 function hideMeterTooltip()
@@ -55,7 +103,7 @@ function showMeterTooltip(cap)
     var el = ensureElement("div", "addictionMeter");
     var level = (cap.visits.length + 1) / (cap.limit + 1);
     el.setAttribute("style", 
-		    "position:fixed; right: 1em; z-index: 1000; " +
+		    "position:fixed; right: 1em; z-index: 16777216; " +
 		    "top: 5%; background-color:red; color: white; padding: 0.5em;" +
 		    "font-family: verdana; font-weight: bold; line-height: 1.5em;" +
 		    "opacity: " + level + ";");
@@ -75,7 +123,7 @@ function showMeterTooltip(cap)
 
 function stopMeter()
 {
-    stopRevisitTimer();
+    stopPassingTimer();
     hideMeterTooltip();
 }
 
@@ -126,7 +174,7 @@ function showCapScreen(cap)
 
     var el = ensureElement("div", "capScreen");
     el.setAttribute("style", 
-		    "position:fixed; z-index: 1000; left: 2%; top:2%; min-width:84%; height:80%;" +
+		    "position:fixed; z-index: 16777216; left: 2%; top:2%; min-width:84%; height:80%;" +
 		    "background-color:white; padding: 0.5em; padding-top: 10%; padding-left: 10%;" +
 		    "border-style: dashed; border-width:5px; border-color: black; font-family: verdana;" +
 		    "");
@@ -140,6 +188,8 @@ function showCapScreen(cap)
 			"position: fixed; top: 80%; left: 80%; " + 
 			"border-style: solid; border-color: #2276bb; border-width: 5pt; padding: 0.2em; " +
 			"cursor: pointer;");
+
+    var dashboardUri = "http://capyoura.appspot.com/dashboard?chart=" + cap.site;
 
     el.innerHTML = ("<div style='text-align:left; font-family: verdana; color: #900;"  +
  		    "font-weight: bold; font-size: 32pt; padding-bottom:0.5em; '>" +
@@ -157,7 +207,7 @@ function showCapScreen(cap)
 		    "<a id='cyaNothankyou' style='" + linkStyle + "' href='#'>&raquo; No thank you. I'm a webholic afterall...</a>" +
 		    "</div>" +
 		    "<div style='" + linkPanelStyle + "'>" +
-		    "<a id='cyaDashboard' style='" + linkStyle + "' href='http://capyoura.appspot.com/dashboard'>&raquo; Open dashboard.</a>" +
+		    "<a id='cyaDashboard' style='" + linkStyle + "' href='" + dashboardUri + "'>&raquo; Open dashboard.</a>" +
 		    "</div>" +
 		    "<div id='cyaCounter' style='" + counterStyle + "'>" +
 		    g_count +
@@ -189,16 +239,30 @@ function showCapScreen(cap)
 
 function initialize()
 {
-    g_port.onMessage.addListener(function(capStr) {
-	cap = JSON.parse(capStr); 
-	if (cap.visits.length < cap.limit) {
-	    showMeterTooltip(cap);
-	    if (0 < cap.timer) {
-		startRevisitTimer(cap.timer*60*1000);
+    var cap = null;
+    var pp = null;
+
+    g_port.onMessage.addListener(function(cmdStr) {
+	cmd = JSON.parse(cmdStr); 
+	switch (cmd.type)
+	{
+	case "cap":
+	    var now = (new Date()).getTime();
+	    cap = cmd.cap;
+	    pp = new PassingProgress(cap);
+	    if (cap.visits.length < cap.limit) {
+		showMeterTooltip(cap);
+		if (0 < cap.timer) {
+		    startPassingTimer(pp, PASSING_INTERVAL);
+		}
+	    } else {
+		stopMeter();
+		showCapScreen(cap);
 	    }
-	} else {
-	    stopMeter();
-	    showCapScreen(cap);
+	    break;
+	case "passed":
+	    handlePassed(pp);
+	    break;
 	}
     });
 

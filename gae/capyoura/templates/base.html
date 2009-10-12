@@ -2,11 +2,12 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
   <link href="/css/capyoura.css" rel="stylesheet" type="text/css" />
-  {% block head %}
-  {% endblock head %}
+  <script src="http://ajax.googleapis.com/ajax/libs/prototype/1.6.1.0/prototype.js" ></script>
+  <script src="/js/capyoura.js" ></script>
+  {% block head %}{% endblock head %}
   <title>capyoura</title>
 </head>
-<body>
+<body onload="{% block onload %}{% endblock onload %}">
 
 <div class="top panel">
     <div class="footer">
