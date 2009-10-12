@@ -7,7 +7,6 @@ Chart.formatLabelDate = function(date)
     if (1 == d.length)
 	d = "0" + d;
     return d;
-    //return date.toString();
 };
 
 Chart.drawBars = function(canvas, bars, limit)
@@ -32,6 +31,7 @@ Chart.drawBars = function(canvas, bars, limit)
 
     var labelFillStyle = '#222';
     var barFillStyle = '#800';
+    var latestLineStyle = '#448';
 
     // bg
     ctx.fillStyle = '#eee';
@@ -55,18 +55,32 @@ Chart.drawBars = function(canvas, bars, limit)
     }
 
     // bar and xlabel
+    var latest_index = 0;
+    for (var i=0; i<blen; i++)
+	if (bars[i].latest)
+	    latest_index = i;
+
     for (var i=0; i<blen; i++) {
 	var bar = bars[i];
 	var bh = ch*bar.count/limit;
 	var bl = cl + (cw*i/blen)
-	var bb = cb - bh;
-	ctx.fillStyle = barFillStyle;
-	ctx.fillRect(bl, bb, bw, bh);
+	var bt = cb - bh;
+	var next_bl = cl + (cw*(i+1)/blen)
 
-	var label = Chart.formatLabelDate(bar.date);
-	var label_w = ctx.measureText(label).width;
-	ctx.fillStyle = labelFillStyle;
-	ctx.fillText(label, bl-label_w/2, cb+fontPx);
+	if (i == latest_index) {
+	    ctx.fillStyle = latestLineStyle;
+	    ctx.fillRect(next_bl, ct, 1, ch);
+	}
+
+	if (i != latest_index+1) {
+	    var label = Chart.formatLabelDate(bar.date);
+	    var label_w = ctx.measureText(label).width;
+	    ctx.fillStyle = labelFillStyle;
+	    ctx.fillText(label, bl-label_w/2, cb+fontPx);
+	}
+
+	ctx.fillStyle = barFillStyle;
+	ctx.fillRect(bl, bt, bw, bh);
     }
 
 };
@@ -80,6 +94,8 @@ Chart.collectBars = function(cap, begin, end, nbars)
 	ret[i] = {date: new Date((begin + (i/nbars)*range)*1000), count: 0};
     }
 
+    ret[ret.length-1].latest = true;
+
     for (var i=0; i<cap.visits.length; i++) {
 	var  v = cap.visits[i];
 	var dv = (v - begin)/(end - begin);
@@ -87,6 +103,11 @@ Chart.collectBars = function(cap, begin, end, nbars)
 	    continue;
 	var vi = Math.floor(dv*nbars);
 	ret[vi].count += 1;
+    }
+
+    // rotate to head the midnight
+    while (0 != ret[0].date.getHours()) { // XXX: fragile! finding min hour should be preferable.
+	ret.push(ret.shift());
     }
 
     return ret;
