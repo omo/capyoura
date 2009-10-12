@@ -1,8 +1,8 @@
 
 Capyoura = {}
 
-//Capyoura.BASE_URI = "http://capyoura.appspot.com/";
-Capyoura.BASE_URI = "http://localhost:8081/";
+Capyoura.BASE_URI = "http://capyoura.appspot.com/";
+//Capyoura.BASE_URI = "http://localhost:8081/";
 
 Capyoura.clearCap = function()
 {

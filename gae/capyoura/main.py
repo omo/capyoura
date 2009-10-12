@@ -360,12 +360,29 @@ class ListAPIHandler(webapp.RequestHandler):
       self.response.set_status(e.status)
       self.response.out.write(str(e))
 
+class GetAPIHandler(webapp.RequestHandler):
+
+  def get_site(self, user, site):
+    return Cap.all().filter('owner =', user).filter('site =', site).get().to_plain()
+
+  def get(self):
+    try:
+      user = users.get_current_user()
+      if not user:
+        raise ClientAPIErorr(403, "Should login first")
+      site = self.request.get("site")
+      self.response.out.write(simplejson.dumps(self.get_site(user, site)))
+    except ClientAPIErorr, e:
+      self.response.set_status(e.status)
+      self.response.out.write(str(e))
+
 
 def main():
   application = webapp.WSGIApplication([('/dashboard', DashboardHandler),
                                         ('/resign', ResignHandler),
                                         ('/cap/visit', VisitAPIHandler),
                                         ('/cap/list', ListAPIHandler),
+                                        ('/cap', GetAPIHandler),
                                         ('/', WelcomeHandler)],
                                        debug=True)
   wsgiref.handlers.CGIHandler().run(application)

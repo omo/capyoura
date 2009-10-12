@@ -1,5 +1,8 @@
 {% extends "./base.html" %}
 {% block title %}dashboard{% endblock %}
+{% block head %}
+  <script src="/js/dashboard.js" ></script>
+{% endblock %}
 {% block content %}
   <h3>Your caps</h3>
   <table border="1">
@@ -17,12 +20,14 @@
 	{{c.site|escape}}
         <input type="submit" class="button" name="delete" value="Delete" />
       </td>
-  {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
+  {% if c.exceeded %}<td class="exceeded">{% else %}<td class="under">{% endif %}
 	<div style="float:left;">
           <input type="submit" class="button" name="unvisit" value="Unvisit" />
 	</div>
 	<div style="float: right">
-	  <span class="visitCount">{{c.fresh_visit_count}}</span>
+	  <a href="#" onclick="showChart(evt, '{{c.site|escape}}');">
+	    <span class="visitCount">{{c.fresh_visit_count}}</span>
+	  </a>
 	</div>
       </td>
   {% if c.exceeded %}<td class="exceeded">{% else %}<td>{% endif %}
