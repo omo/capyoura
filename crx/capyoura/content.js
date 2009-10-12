@@ -46,17 +46,21 @@ function PassingProgress(cap)
     };
 
     this.activeRate = function() {
-	return this.passes/this.passings;
+	return this.passes/this.passings || 0.0;
     };
 
     this.activeDuraton = function (now) {
 	return (now - this.startTime)*(this.activeRate());
     };
 
-    this.expired = function(now) {
+    this.expirationRate = function(now) {
 	var tms = this.cap.timer*60*1000;
-	var ams = this.activeDuraton(now);
-	return tms < ams;
+	var ams = this.activeDuraton(now || new Date().getTime());
+	return ams/tms;
+    };
+
+    this.expired = function(now) {
+	return 1.0 <= this.expirationRate(now);
     };
 
     this.log = function() {
@@ -103,22 +107,30 @@ function showMeterTooltip(cap)
     var el = ensureElement("div", "addictionMeter");
     var level = (cap.visits.length + 1) / (cap.limit + 1);
     el.setAttribute("style", 
-		    "position:fixed; right: 1em; z-index: 16777216; " +
+		    "position:fixed; right: 1em; z-index: 16777216; width:7em; " +
 		    "top: 5%; background-color:red; color: white; padding: 0.5em;" +
-		    "font-family: verdana; font-weight: bold; line-height: 1.5em;" +
+		    "font-family: verdana; font-weight: bold; line-height: 1.5em; font-size: small;" +
 		    "opacity: " + level + ";");
 
+    var timerStr = "";
+    if (cap.timer) {
+	timerStr = ("<div style='width:100%; height:1em; text-align: center;'>" +
+		    "<canvas id='meterCanvas' style='width:100%; height:100%;' /></div>");
+    }
+
     el.innerHTML = ("<div>addicting...</div>" +
-		    "<div>" + cap.visits.length + "/" + cap.limit + "</div>");
+		    "<div>" + cap.visits.length + "/" + cap.limit + "</div>" +
+		   timerStr);
     document.body.appendChild(el);
 
-    if (0 < cap.timer) {
+    if (cap.timer) {
 	// when we have timer for the site,
 	// the timer can be stopped by clicking the meter.
 	el.style.cursor = "pointer";
 	el.setAttribute("title", "click to stop");
 	el.addEventListener("click", stopMeter);
     }
+    return document.getElementById('meterCanvas');
 }
 
 function stopMeter()
@@ -237,10 +249,20 @@ function showCapScreen(cap)
     window.setTimeout(countdownCapScreen, 1000);
 }
 
+function drawMeterProgress(canvas, pp)
+{
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#800';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width*pp.expirationRate(), canvas.height);
+}
+
 function initialize()
 {
     var cap = null;
     var pp = null;
+    var meterCanvas = null;
 
     g_port.onMessage.addListener(function(cmdStr) {
 	cmd = JSON.parse(cmdStr); 
@@ -251,7 +273,7 @@ function initialize()
 	    cap = cmd.cap;
 	    pp = new PassingProgress(cap);
 	    if (cap.visits.length < cap.limit) {
-		showMeterTooltip(cap);
+		meterCanvas = showMeterTooltip(cap, pp);
 		if (0 < cap.timer) {
 		    startPassingTimer(pp, PASSING_INTERVAL);
 		}
@@ -262,6 +284,8 @@ function initialize()
 	    break;
 	case "passed":
 	    handlePassed(pp);
+	    console.log(meterCanvas);
+	    drawMeterProgress(meterCanvas, pp);
 	    break;
 	}
     });
